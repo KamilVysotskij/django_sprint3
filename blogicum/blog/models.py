@@ -1,7 +1,9 @@
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.db import models
+from django.utils import timezone
 
 from core.models import BaseModel
+
 
 User = get_user_model()
 
@@ -39,6 +41,14 @@ class Location(BaseModel):
         return self.name
 
 
+class PublishedPostManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            pub_date__lte=timezone.now(),
+            is_published=True
+        )
+
+
 class Post(BaseModel):
     title = models.CharField(
         verbose_name='Заголовок',
@@ -51,20 +61,27 @@ class Post(BaseModel):
                    '— можно делать отложенные публикации.'))
     author = models.ForeignKey(
         User,
+        related_name='posts',
         verbose_name='Автор публикации',
         on_delete=models.CASCADE)
     location = models.ForeignKey(
         Location,
+        related_name='posts',
         verbose_name='Местоположение',
         on_delete=models.SET_NULL, null=True)
     category = models.ForeignKey(
         Category,
+        related_name='posts',
         verbose_name='Категория',
         on_delete=models.SET_NULL, null=True)
+
+    objects = models.Manager()
+    published_objects = PublishedPostManager()
 
     class Meta:
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.title
