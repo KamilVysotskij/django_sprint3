@@ -45,7 +45,8 @@ class PublishedPostManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(
             pub_date__lte=timezone.now(),
-            is_published=True
+            is_published=True,
+            category__is_published=True
         )
 
 
@@ -81,7 +82,6 @@ class Post(BaseModel):
     class Meta:
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
-        ordering = ['-created_at']
 
     def __str__(self):
         return self.title

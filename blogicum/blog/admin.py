@@ -66,7 +66,7 @@ class PostAdmin(admin.ModelAdmin):
         'is_published'
     )
     list_display_links = ('title',)
-    ordering = ['author__first_name']
+    ordering = ('author__first_name')
 
 
 admin.site.register(Category, CategoryAdmin)
